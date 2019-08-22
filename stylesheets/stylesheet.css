@@ -14,6 +14,33 @@ a {
   text-decoration: none; }
   a:hover {
     text-decoration: underline; }
+    
+#donatebox {
+  width: 180px;
+  margin-right: 5px;
+  padding: 0px 6px;
+  text-align: right;
+  border-width: 0px;
+  border-bottom-width: 2px;
+  height: 40px;
+  font-size: 30px;
+  font-weight: bold;
+}
+
+#donatebox:focus {
+  outline: none;
+  border-bottom-color: #FA9029;
+}
+
+#fiatcurrency {
+  font-size: 30px;
+  font-weight: bold;
+}
+
+#qrcodePlaceHolder {
+    width: 256px;
+    height: 256px;
+}
 
 .btn {
   display: inline-block;
@@ -48,7 +75,12 @@ a {
     display: block;
     width: 100%;
     padding: 0.75rem;
-    font-size: 0.9rem; }
-    .btn + .btn {
+    font-size: 0.9rem; 
+    }
+  .btn + .btn {
       margin-top: 1rem;
-      margin-left: 0; } }
+      margin-left: 0; 
+    } 
+}
+
+      
