@@ -4,21 +4,16 @@
 body {
   padding: 0;
   margin: 0;
-  font-family: "Comic Sans MS", "GoodDog", "Flux", sans-serif;
+  font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 16px;
   line-height: 1.5;
-  color: #606c71; 
-  background-color: #ecdd83;
-}
+  color: #606c71; }
 
 a {
   color: #1e6bb8;
-  text-decoration: none;
-}
-
-a:hover {
-  text-decoration: underline; 
-}
+  text-decoration: none; }
+  a:hover {
+    text-decoration: underline; }
     
 #donatebox {
   width: 180px;
@@ -30,13 +25,11 @@ a:hover {
   height: 40px;
   font-size: 30px;
   font-weight: bold;
-  border-bottom-color: #606c71;
-  background-color: transparent;
 }
 
 #donatebox:focus {
   outline: none;
-  border-bottom-color: #D2A83E;
+  border-bottom-color: #FA9029;
 }
 
 #fiatcurrency {

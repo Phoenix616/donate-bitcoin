@@ -1,13 +1,13 @@
-// donate-dogecoin Copyright (GPL) 2016  Nathan Robinson
-// modified to work with dogecoin by Max Lee aka Phoenix616
+// donate-ethereum Copyright (GPL) 2016  Nathan Robinson
+// modified to work with ethereum by Max Lee aka Phoenix616
 
-var address = "DHHkwioXcUGxC8PfASsAFdpMLKbSsEMkqo"; // The dogecoin address to receive donations. Change to yours
-var popup = false; // Set to true if you want a popup to pay dogecoin
+var address = "0xc0137Bd65A121Cf093E8233f8850D15fD59F29Ac"; // The ethereum address to receive donations. Change to yours
+var popup = false; // Set to true if you want a popup to pay ethereum
 var currencyCode = "EUR"; // Change to your default currency. Choose from https://chain.so/api#get-prices
 var qrcode = true; // Set to false to disable qrcode
 var message = true; // Set to false to disable showing of the message
 var organization = "Moep.tv"; // Change to your organization name
-var mbits = false; // Set to false to display dogecoin traditionally
+var mbits = false; // Set to false to display ethereum traditionally
 var defaultAmountToDonate = 5; // Default amount to donate
 var defaultCurrency = 'EUR'; // Default currency to fallback
 
@@ -161,16 +161,16 @@ function drawDonationElements(url, donateDisplayMessage) {
 }
 
 function donate() {
-    $.getJSON(`https://chain.so/api/v2/get_price/BTC/${currencyCode}`, function(btcExchangeResponse) {
+    $.getJSON(`https://moep.tv/sochain/v2/get_price/BTC/${currencyCode}`, function(btcExchangeResponse) {
         var fiatDonationAmount = getFiatDonationAmount();
         var bitcoinPrice = getPrice(btcExchangeResponse);
-        $.getJSON(`https://chain.so/api/v2/get_price/DOGE/BTC`, function(dogeExchangeResponse) {
-            var dogecoinPrice = getPrice(dogeExchangeResponse);
-            if (bitcoinPrice <= 0 || dogecoinPrice <= 0) {
+        $.getJSON(`https://moep.tv/sochain/v2/get_price/ETH/BTC`, function(etherExchangeResponse) {
+            var etherPrice = getPrice(etherExchangeResponse);
+            if (etherPrice <= 0 || etherPrice <= 0) {
                 return;
             }
-            var dogecoinAmountToDonate = computeDogecoinAmount(fiatDonationAmount, dogecoinPrice, bitcoinPrice);
-            var donationElements = composeDonationElements(dogecoinAmountToDonate, fiatDonationAmount);
+            var etherAmountToDonate = computeAltcoinAmount(fiatDonationAmount, etherPrice, bitcoinPrice);
+            var donationElements = composeDonationElements(etherAmountToDonate, fiatDonationAmount);
             drawDonationElements(donationElements.url, donationElements.message);
         });
     });
@@ -180,8 +180,8 @@ function handlePricingError(currencyExchangeResponse) {
     alert(`Could not request exchgange rates for ${currencyCode}`);
 }
 
-function computeDogecoinAmount(fiatDonationAmount, dogecoinPrice, bitcoinPrice) {
-    return ((fiatDonationAmount / bitcoinPrice) / dogecoinPrice).toFixed(0);
+function computeAltcoinAmount(fiatDonationAmount, altPrice, bitcoinPrice) {
+    return ((fiatDonationAmount / bitcoinPrice) / altPrice).toFixed(5);
 }
 
 function noValidInput(fiatUserInput) {
@@ -192,8 +192,42 @@ function validAmountRequestedInUrl() {
     return isNaN(params.amount) == false;
 }
 
-function validAddress(addressInput) {
-    return (addressInput.startsWith("D") && addressInput.length > 25 && addressInput.length < 35);
+/**
+ * Checks if the given string is an address
+ *
+ * @param {String} address the given HEX adress
+ * @return {Boolean}
+*/
+function validAddress(address) {
+    if (!/^(0x)?[0-9a-f]{40}$/i.test(address)) {
+        // check if it has the basic requirements of an address
+        return false;
+    } else if (/^(0x)?[0-9a-f]{40}$/.test(address) || /^(0x)?[0-9A-F]{40}$/.test(address)) {
+        // If it's all small caps or all all caps, return true
+        return true;
+    } else {
+        // Otherwise check each case
+        return isChecksumAddress(address);
+    }
+}
+
+/**
+ * Checks if the given string is a checksummed address
+ *
+ * @param {String} address the given HEX adress
+ * @return {Boolean}
+*/
+function isChecksumAddress(address) {
+    // Check each case
+    address = address.replace('0x','');
+    var addressHash = sha3(address.toLowerCase());
+    for (var i = 0; i < 40; i++ ) {
+        // the nth letter should be uppercase if the nth digit of casemap is 1
+        if ((parseInt(addressHash[i], 16) > 7 && address[i].toUpperCase() !== address[i]) || (parseInt(addressHash[i], 16) <= 7 && address[i].toLowerCase() !== address[i])) {
+            return false;
+        }
+    }
+    return true;
 }
 
 function getFiatDonationAmount() {
@@ -207,10 +241,10 @@ function getFiatDonationAmount() {
     return fiatUserInput;
 }
 
-function composeDonationElements(dogecoinAmountToDonate, fiatDonationAmount) {
-    var url = "dogecoin:" + address + "?amount=" + dogecoinAmountToDonate + "&message=Payment%20to%20" + organization;
+function composeDonationElements(etherAmountToDonate, fiatDonationAmount) {
+    var url = "ethereum:" + address + "?value=" + etherAmountToDonate + "&message=Payment%20to%20" + organization;
     var fiatAmountToDonateMessage = " (" + fiatDonationAmount + " " + currencyCode + ") " + "to <span onclick=\"selectText(this)\">" + address + "</span>";
-    var donateDisplayMessage = " Please send " + dogecoinAmountToDonate.toString() + " Dogecoin" + fiatAmountToDonateMessage;
+    var donateDisplayMessage = " Please send <span onclick=\"selectText(this)\">" + etherAmountToDonate.toString() + "</span> Ether" + fiatAmountToDonateMessage;
     return {
         url: url,
         message: donateDisplayMessage
