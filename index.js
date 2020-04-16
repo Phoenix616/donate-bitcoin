@@ -29,10 +29,10 @@ if (location.hash) {
     // this is a mess, works but needs to be improved
     if (directLength > 0) {
         if (directLength == 1) {
-            if (isNaN(parts[0]) === false) {
-                params.amount = parts[0];
-            } else if (validAddress(parts[0])) {
+            if (validAddress(parts[0])) {
                 params.address = parts[0];
+            } else if (isNaN(parts[0]) === false) {
+                params.amount = parts[0];
             } else {
                 params.name = parts[0];
             }
@@ -44,21 +44,19 @@ if (location.hash) {
                     params.name = parts[0];
                 }
                 params.amount = parts[1];
+            } else if (validAddress(parts[0])) {
+                params.address = parts[0];
+                if (parts[1].length == 3) {
+                    params.currency = parts[1];
+                } else {
+                    params.name = parts[1];
+                }
             } else if (isNaN(parts[0]) === false) {
                 params.amount = parts[0];
                 params.currency = parts[1];
             } else {
-                if (validAddress(parts[0])) {
-                    params.address = parts[0];
-                    if (parts[1].length == 3) {
-                        params.currency = parts[1];
-                    } else {
-                        params.name = parts[1];
-                    }
-                } else {
-                    params.name = parts[0];
-                    params.currency = parts[1];
-                }
+                params.name = parts[0];
+                params.currency = parts[1];
             }
         } else if (directLength == 3) {
             if (validAddress(parts[0])) {
@@ -192,42 +190,8 @@ function validAmountRequestedInUrl() {
     return isNaN(params.amount) == false;
 }
 
-/**
- * Checks if the given string is an address
- *
- * @param {String} address the given HEX adress
- * @return {Boolean}
-*/
 function validAddress(address) {
-    if (!/^(0x)?[0-9a-f]{40}$/i.test(address)) {
-        // check if it has the basic requirements of an address
-        return false;
-    } else if (/^(0x)?[0-9a-f]{40}$/.test(address) || /^(0x)?[0-9A-F]{40}$/.test(address)) {
-        // If it's all small caps or all all caps, return true
-        return true;
-    } else {
-        // Otherwise check each case
-        return isChecksumAddress(address);
-    }
-}
-
-/**
- * Checks if the given string is a checksummed address
- *
- * @param {String} address the given HEX adress
- * @return {Boolean}
-*/
-function isChecksumAddress(address) {
-    // Check each case
-    address = address.replace('0x','');
-    var addressHash = sha3(address.toLowerCase());
-    for (var i = 0; i < 40; i++ ) {
-        // the nth letter should be uppercase if the nth digit of casemap is 1
-        if ((parseInt(addressHash[i], 16) > 7 && address[i].toUpperCase() !== address[i]) || (parseInt(addressHash[i], 16) <= 7 && address[i].toLowerCase() !== address[i])) {
-            return false;
-        }
-    }
-    return true;
+    return /^(0x)?[0-9a-f]{40}$/i.test(address);
 }
 
 function getFiatDonationAmount() {
